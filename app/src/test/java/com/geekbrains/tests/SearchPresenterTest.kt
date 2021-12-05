@@ -9,6 +9,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import retrofit2.Response
@@ -28,9 +29,26 @@ class SearchPresenterTest {
     fun setUp() {
         //Обязательно для аннотаций "@Mock"
         //Раньше было @RunWith(MockitoJUnitRunner.class) в аннотации к самому классу (SearchPresenterTest)
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         //Создаем Презентер, используя моки Репозитория и Вью, проинициализированные строкой выше
-        presenter = SearchPresenter(viewContract, repository)
+        presenter = SearchPresenter(repository)
+    }
+
+    @Test
+    fun onAttach_Test() {
+        val searchQuery = "some query"
+        presenter.onAttach(viewContract)
+        presenter.searchGitHub(searchQuery)
+        Mockito.verify(viewContract, Mockito.times(1)).displayLoading(true)
+    }
+
+    @Test
+    fun onDetach_Test() {
+        val searchQuery = "some query"
+        presenter.onAttach(viewContract)
+        presenter.onDetach()
+        presenter.searchGitHub(searchQuery)
+        Mockito.verify(viewContract, Mockito.never()).displayLoading(true)
     }
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
